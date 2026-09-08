@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BINGO · 历史图鉴</title>
     <style>
-        /* ========== 完整 UI 样式（保持不变） ========== */
         :root {
             --bg-dark: #1a1008;
             --bg-card: #e8d5b0;
@@ -14,7 +13,6 @@
             --border-gold-light: #d4a840;
             --text-dark: #3a2a1a;
             --text-medium: #5c4a32;
-            --text-light: #8a7050;
             --cell-available-bg: #f0e0c0;
             --cell-available-border: #c4a882;
             --cell-available-text: #4a3828;
@@ -26,7 +24,13 @@
             --shadow-deep: 0 12px 40px rgba(0, 0, 0, 0.6);
             --font-serif: 'Georgia', 'Times New Roman', '宋体', 'SimSun', '楷体', 'KaiTi', serif;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: var(--font-serif);
             background-color: var(--bg-dark);
@@ -41,7 +45,14 @@
                 repeating-linear-gradient(45deg, rgba(120, 80, 40, 0.04) 0px, rgba(120, 80, 40, 0.04) 3px, transparent 3px, transparent 7px);
             background-attachment: fixed;
         }
-        .container { width: 100%; max-width: 660px; position: relative; }
+
+        .container {
+            width: 100%;
+            max-width: 660px;
+            position: relative;
+        }
+
+        /* ============ 主卡片 ============ */
         .main-view {
             background: var(--bg-card);
             border-radius: 20px;
@@ -58,6 +69,7 @@
                 radial-gradient(ellipse at 50% 100%, rgba(180, 140, 80, 0.3) 0%, transparent 50%),
                 repeating-linear-gradient(0deg, rgba(160, 130, 80, 0.03) 0px, rgba(160, 130, 80, 0.03) 2px, transparent 2px, transparent 6px);
         }
+
         .main-view::before,
         .main-view::after {
             content: '❦';
@@ -69,6 +81,7 @@
         }
         .main-view::before { top: -14px; left: 16px; }
         .main-view::after { bottom: -14px; right: 16px; transform: rotate(180deg); }
+
         .corner-deco {
             position: absolute;
             font-size: 1.4rem;
@@ -78,7 +91,13 @@
         }
         .corner-deco.top-right { top: -12px; right: 16px; transform: rotate(90deg); }
         .corner-deco.bottom-left { bottom: -12px; left: 16px; transform: rotate(-90deg); }
-        .header { text-align: center; margin-bottom: 22px; position: relative; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 22px;
+            position: relative;
+        }
+
         .header .ornament-line {
             display: flex;
             align-items: center;
@@ -96,6 +115,7 @@
             height: 1px;
             background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
         }
+
         .header h1 {
             font-size: 3rem;
             font-weight: 900;
@@ -109,6 +129,7 @@
             margin-bottom: 4px;
             line-height: 1.1;
         }
+
         .header .subtitle {
             color: var(--text-medium);
             font-size: 0.95rem;
@@ -116,6 +137,7 @@
             font-style: italic;
             margin-bottom: 6px;
         }
+
         .header .progress-info {
             display: inline-block;
             color: var(--accent-red);
@@ -128,6 +150,7 @@
             background: rgba(255, 255, 255, 0.3);
             margin-top: 4px;
         }
+
         .bingo-letters {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -149,6 +172,7 @@
         .bingo-letters .letter:nth-child(3) { color: #6b8e23; }
         .bingo-letters .letter:nth-child(4) { color: #3a6b8f; }
         .bingo-letters .letter:nth-child(5) { color: #7b4fa0; }
+
         .bingo-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -161,6 +185,7 @@
             box-shadow: inset 0 0 20px rgba(160, 120, 60, 0.15);
             position: relative;
         }
+
         .bingo-grid::before,
         .bingo-grid::after {
             content: '⚜';
@@ -172,6 +197,7 @@
         }
         .bingo-grid::before { top: -10px; left: -10px; }
         .bingo-grid::after { bottom: -10px; right: -10px; transform: rotate(180deg); }
+
         .cell {
             aspect-ratio: 1;
             display: flex;
@@ -188,6 +214,7 @@
             -webkit-tap-highlight-color: transparent;
             text-align: center;
         }
+
         .cell.available {
             background: var(--cell-available-bg);
             background-image:
@@ -198,17 +225,20 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.6);
             text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
         }
+
         .cell.available:hover {
             background: var(--bg-card-light);
             transform: translateY(-3px);
             box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.7);
             border-color: var(--border-gold-light);
         }
+
         .cell.available:active {
             transform: translateY(0px);
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 2px 6px rgba(0, 0, 0, 0.15);
             transition: all 0.08s ease;
         }
+
         .cell.used {
             background: var(--cell-used-bg);
             background-image:
@@ -221,6 +251,7 @@
             transform: scale(0.96);
             text-shadow: none;
         }
+
         .cell.used .cell-number {
             display: block;
             font-size: 1.15rem;
@@ -229,6 +260,7 @@
             position: relative;
             z-index: 1;
         }
+
         .cell.used .check-overlay {
             position: absolute;
             top: 50%;
@@ -248,11 +280,13 @@
             letter-spacing: -2px;
             animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
+
         @keyframes checkPop {
             0% { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 0; }
             60% { transform: translate(-50%, -50%) scale(1.25) rotate(3deg); opacity: 1; }
             100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0.85; }
         }
+
         .bottom-bar {
             display: flex;
             justify-content: center;
@@ -260,6 +294,7 @@
             margin-top: 22px;
             flex-wrap: wrap;
         }
+
         .btn {
             padding: 12px 30px;
             border-radius: 50px;
@@ -272,6 +307,7 @@
             transition: all 0.3s ease;
             -webkit-tap-highlight-color: transparent;
         }
+
         .btn-reset {
             background: transparent;
             color: var(--text-medium);
@@ -284,6 +320,10 @@
             color: var(--text-dark);
             box-shadow: 0 4px 16px rgba(184, 134, 11, 0.25);
         }
+
+        /* ============================================================
+           全屏图片弹窗 - 覆盖整个屏幕
+           ============================================================ */
         .question-overlay {
             position: fixed;
             top: 0;
@@ -305,7 +345,11 @@
             transition: opacity 0.4s ease;
             overflow: hidden;
         }
-        .question-overlay.active { opacity: 1; pointer-events: all; }
+        .question-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
         .overlay-header {
             width: 100%;
             display: flex;
@@ -319,6 +363,7 @@
             z-index: 5;
             flex-shrink: 0;
         }
+
         .question-number-badge {
             display: inline-block;
             background: linear-gradient(180deg, #c9a84c, #8b6914);
@@ -332,6 +377,7 @@
             border: 1px solid #d4a840;
             white-space: nowrap;
         }
+
         .btn-close-top {
             background: rgba(255, 255, 255, 0.1);
             color: #fef8e8;
@@ -351,6 +397,7 @@
             background: rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.5);
         }
+
         .image-container {
             width: 100%;
             flex: 1 1 auto;
@@ -362,6 +409,7 @@
             position: relative;
             min-height: 0;
         }
+
         .image-container img {
             max-width: 100%;
             max-height: 100%;
@@ -373,7 +421,9 @@
             box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(200, 160, 60, 0.3);
             transition: opacity 0.3s ease;
             image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
         }
+
         .image-fallback {
             color: #d4bc8e;
             font-style: italic;
@@ -382,6 +432,7 @@
             text-align: center;
             line-height: 1.6;
         }
+
         .overlay-footer {
             width: 100%;
             display: flex;
@@ -397,6 +448,7 @@
             gap: 12px;
             flex-wrap: wrap;
         }
+
         .btn-back {
             background: linear-gradient(180deg, #a07020, #6b4a10);
             color: #fef8e8;
@@ -418,12 +470,15 @@
             box-shadow: 0 8px 28px rgba(139, 105, 20, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.35);
             transform: translateY(-2px);
         }
+
         .hint-text {
             color: rgba(220, 200, 170, 0.5);
             font-size: 0.75rem;
             letter-spacing: 1px;
             font-style: italic;
         }
+
+        /* ============ 胜利弹窗 ============ */
         .win-overlay {
             position: fixed;
             top: 0;
@@ -442,7 +497,10 @@
             pointer-events: none;
             transition: opacity 0.5s ease;
         }
-        .win-overlay.active { opacity: 1; pointer-events: all; }
+        .win-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
         .win-card {
             background: var(--bg-card);
             border-radius: 24px;
@@ -476,8 +534,13 @@
             filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
         }
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-14px); }
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-14px);
+            }
         }
         .win-card h2 {
             color: var(--border-gold);
@@ -494,27 +557,67 @@
             font-style: italic;
             letter-spacing: 1px;
         }
-        /* ========== 响应式 ========== */
+
+        /* ============ 横屏适配 ============ */
         @media (orientation: landscape) {
-            .image-container { padding: 50px 20px 60px; }
-            .image-container img { max-height: 85vh; max-width: 75vw; }
+            .image-container {
+                padding: 50px 20px 60px;
+            }
+            .image-container img {
+                max-height: 85vh;
+                max-width: 75vw;
+            }
         }
+
+        /* ============ 竖屏手机适配 ============ */
         @media (orientation: portrait) and (max-width: 600px) {
-            .image-container { padding: 50px 8px 70px; }
-            .image-container img { max-height: 75vh; max-width: 95vw; }
-            .overlay-header { padding: 8px 12px; }
-            .question-number-badge { padding: 5px 14px; font-size: 0.7rem; }
-            .btn-close-top { padding: 6px 14px; font-size: 0.75rem; }
-            .overlay-footer { padding: 8px 12px 12px; }
-            .btn-back { padding: 11px 28px; font-size: 0.85rem; }
-            .hint-text { display: none; }
+            .image-container {
+                padding: 50px 8px 70px;
+            }
+            .image-container img {
+                max-height: 75vh;
+                max-width: 95vw;
+            }
+            .overlay-header {
+                padding: 8px 12px;
+            }
+            .question-number-badge {
+                padding: 5px 14px;
+                font-size: 0.7rem;
+            }
+            .btn-close-top {
+                padding: 6px 14px;
+                font-size: 0.75rem;
+            }
+            .overlay-footer {
+                padding: 8px 12px 12px;
+            }
+            .btn-back {
+                padding: 11px 28px;
+                font-size: 0.85rem;
+            }
+            .hint-text {
+                display: none;
+            }
         }
+
+        /* ============ 平板适配 ============ */
         @media (min-width: 601px) and (max-width: 1024px) {
-            .image-container img { max-height: 70vh; max-width: 85vw; }
+            .image-container img {
+                max-height: 70vh;
+                max-width: 85vw;
+            }
         }
+
+        /* ============ 桌面大屏适配 ============ */
         @media (min-width: 1025px) {
-            .image-container img { max-height: 78vh; max-width: 70vw; }
+            .image-container img {
+                max-height: 78vh;
+                max-width: 70vw;
+            }
         }
+
+        /* ============ 主网格响应式 ============ */
         @media (max-width: 520px) {
             .main-view { padding: 18px 12px 22px; }
             .header h1 { font-size: 2rem; letter-spacing: 6px; }
@@ -528,10 +631,15 @@
             .main-view::before,
             .main-view::after,
             .bingo-grid::before,
-            .bingo-grid::after { display: none; }
+            .bingo-grid::after {
+                display: none;
+            }
             .header .ornament-line::before,
-            .header .ornament-line::after { flex: 0 1 30px; }
+            .header .ornament-line::after {
+                flex: 0 1 30px;
+            }
         }
+
         @media (max-width: 360px) {
             .cell { font-size: 0.9rem; }
             .cell.used .check-overlay { font-size: 1.2rem; }
@@ -541,16 +649,20 @@
     </style>
 </head>
 <body>
+
+    <!-- ==================== 主视图 ==================== -->
     <div class="container">
         <div class="main-view" id="mainView">
             <span class="corner-deco top-right">❦</span>
             <span class="corner-deco bottom-left">❦</span>
+
             <div class="header">
                 <div class="ornament-line">⚜ ─── 图鉴 ─── ⚜</div>
                 <h1>BINGO</h1>
                 <div class="subtitle">— 点击号码 · 观图品史 —</div>
                 <div class="progress-info" id="progressInfo">已答 0 题 · 共 25 题</div>
             </div>
+
             <div class="bingo-letters">
                 <div class="letter">B</div>
                 <div class="letter">I</div>
@@ -558,27 +670,31 @@
                 <div class="letter">G</div>
                 <div class="letter">O</div>
             </div>
+
             <div class="bingo-grid" id="bingoGrid"></div>
+
             <div class="bottom-bar">
                 <button class="btn btn-reset" id="btnReset">🔄 重开图鉴</button>
             </div>
         </div>
     </div>
 
-    <!-- 全屏图片弹窗 -->
+    <!-- ==================== 全屏图片弹窗 ==================== -->
     <div class="question-overlay" id="questionOverlay">
         <div class="overlay-header">
             <span class="question-number-badge" id="questionBadge">第 1 图</span>
             <button class="btn-close-top" id="btnCloseTop">✕ 关闭</button>
         </div>
+
         <div class="image-container" id="imageContainer"></div>
+
         <div class="overlay-footer">
             <button class="btn btn-back" id="btnBack">← 返回号码</button>
             <span class="hint-text">按 Esc 键关闭</span>
         </div>
     </div>
 
-    <!-- 胜利弹窗 -->
+    <!-- ==================== 胜利弹窗 ==================== -->
     <div class="win-overlay" id="winOverlay">
         <div class="win-card">
             <span class="trophy">🏆</span>
@@ -589,155 +705,170 @@
     </div>
 
     <script>
-        (function() {
-            // ============================================================
-            // 📸 图片路径配置（根据您的 GitHub 信息修改）
-            // ============================================================
-            const USE_LOCAL_IMAGES = false;          // 如果使用本地文件夹，改为 true
-            const GITHUB_USERNAME = 'your-username'; // 替换为您的 GitHub 用户名
-            const GITHUB_REPO = 'your-repo';         // 替换为您的仓库名
-            const GITHUB_BRANCH = 'main';            // 通常为 main 或 master
-            const IMAGE_FOLDER = 'images';           // 仓库中图片所在文件夹，若在根目录则留空 ''
-            const IMAGE_EXTENSION = '.png';          // 图片扩展名（小写）
+        // ============================================================
+        // 📸 图片设置
+        // 图片直接放在与当前 HTML 文件相同的目录下，
+        // 命名为 1.png、2.png ... 25.png 即可自动识别。
+        // ============================================================
+        const IMAGE_EXTENSION = '.png';
 
-            // 构建图片基础 URL
-            let imageBaseUrl = '';
-            if (USE_LOCAL_IMAGES) {
-                // 本地相对路径
-                imageBaseUrl = IMAGE_FOLDER ? IMAGE_FOLDER + '/' : '';
-            } else {
-                // 使用 jsDelivr CDN 加载 GitHub 图片
-                imageBaseUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_USERNAME}/${GITHUB_REPO}@${GITHUB_BRANCH}/${IMAGE_FOLDER ? IMAGE_FOLDER + '/' : ''}`;
-            }
+        // ============================================================
+        // 游戏状态
+        // ============================================================
+        let usedCells = new Array(25).fill(false);
+        let currentNumber = null;
 
-            // 游戏状态
-            let usedCells = new Array(25).fill(false);
-            let currentNumber = null;
+        const bingoGrid = document.getElementById('bingoGrid');
+        const progressInfo = document.getElementById('progressInfo');
+        const questionOverlay = document.getElementById('questionOverlay');
+        const questionBadge = document.getElementById('questionBadge');
+        const imageContainer = document.getElementById('imageContainer');
+        const btnBack = document.getElementById('btnBack');
+        const btnCloseTop = document.getElementById('btnCloseTop');
+        const btnReset = document.getElementById('btnReset');
+        const winOverlay = document.getElementById('winOverlay');
+        const btnWinReset = document.getElementById('btnWinReset');
 
-            // DOM 元素
-            const bingoGrid = document.getElementById('bingoGrid');
-            const progressInfo = document.getElementById('progressInfo');
-            const questionOverlay = document.getElementById('questionOverlay');
-            const questionBadge = document.getElementById('questionBadge');
-            const imageContainer = document.getElementById('imageContainer');
-            const btnBack = document.getElementById('btnBack');
-            const btnCloseTop = document.getElementById('btnCloseTop');
-            const btnReset = document.getElementById('btnReset');
-            const winOverlay = document.getElementById('winOverlay');
-            const btnWinReset = document.getElementById('btnWinReset');
+        // ============================================================
+        // 渲染网格
+        // ============================================================
+        function renderGrid() {
+            bingoGrid.innerHTML = '';
+            for (let i = 1; i <= 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.number = i;
 
-            // 渲染网格
-            function renderGrid() {
-                bingoGrid.innerHTML = '';
-                for (let i = 1; i <= 25; i++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.dataset.number = i;
-
-                    if (usedCells[i - 1]) {
-                        cell.classList.add('used');
-                        const numSpan = document.createElement('span');
-                        numSpan.className = 'cell-number';
-                        numSpan.textContent = i;
-                        cell.appendChild(numSpan);
-                        const checkSpan = document.createElement('span');
-                        checkSpan.className = 'check-overlay';
-                        checkSpan.textContent = '✓';
-                        cell.appendChild(checkSpan);
-                    } else {
-                        cell.classList.add('available');
-                        cell.textContent = i;
-                        cell.addEventListener('click', () => onCellClick(i));
-                    }
-                    bingoGrid.appendChild(cell);
+                if (usedCells[i - 1]) {
+                    cell.classList.add('used');
+                    const numSpan = document.createElement('span');
+                    numSpan.className = 'cell-number';
+                    numSpan.textContent = i;
+                    cell.appendChild(numSpan);
+                    const checkSpan = document.createElement('span');
+                    checkSpan.className = 'check-overlay';
+                    checkSpan.textContent = '✓';
+                    cell.appendChild(checkSpan);
+                } else {
+                    cell.classList.add('available');
+                    cell.textContent = i;
+                    cell.addEventListener('click', () => onCellClick(i));
                 }
-                updateProgress();
+
+                bingoGrid.appendChild(cell);
             }
+            updateProgress();
+        }
 
-            function updateProgress() {
-                const usedCount = usedCells.filter(u => u).length;
-                progressInfo.textContent = `已答 ${usedCount} 题 · 共 25 题`;
-                if (usedCount === 25) {
-                    setTimeout(() => winOverlay.classList.add('active'), 450);
-                }
+        function updateProgress() {
+            const usedCount = usedCells.filter(u => u).length;
+            progressInfo.textContent = `已答 ${usedCount} 题 · 共 25 题`;
+            if (usedCount === 25) {
+                setTimeout(() => winOverlay.classList.add('active'), 450);
             }
+        }
 
-            function onCellClick(number) {
-                if (usedCells[number - 1]) return;
-                usedCells[number - 1] = true;
-                currentNumber = number;
-                renderGrid();
-                showImage(number);
-            }
-
-            function showImage(number) {
-                imageContainer.innerHTML = '';
-                questionBadge.textContent = `第 ${number} 图`;
-
-                const img = document.createElement('img');
-                img.src = `${imageBaseUrl}${number}${IMAGE_EXTENSION}`;
-                img.alt = `图片 ${number}`;
-                img.draggable = false;
-                img.loading = 'eager';
-                img.style.opacity = '0';
-                img.onload = () => { img.style.opacity = '1'; };
-                img.onerror = () => {
-                    imageContainer.innerHTML = `
-                        <div class="image-fallback">
-                            ⚠️ 图片加载失败<br>
-                            路径：<strong>${img.src}</strong><br>
-                            请检查文件名、扩展名或 GitHub 配置。
-                        </div>
-                    `;
-                };
-
-                imageContainer.appendChild(img);
-                questionOverlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeOverlay() {
-                questionOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-                currentNumber = null;
-            }
-
-            function resetGame() {
-                usedCells = new Array(25).fill(false);
-                currentNumber = null;
-                closeOverlay();
-                winOverlay.classList.remove('active');
-                renderGrid();
-            }
-
-            // 事件绑定
-            btnBack.addEventListener('click', closeOverlay);
-            btnCloseTop.addEventListener('click', closeOverlay);
-            btnReset.addEventListener('click', resetGame);
-            btnWinReset.addEventListener('click', resetGame);
-            questionOverlay.addEventListener('click', (e) => {
-                if (e.target === questionOverlay) closeOverlay();
-            });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    if (questionOverlay.classList.contains('active')) closeOverlay();
-                    else if (winOverlay.classList.contains('active')) resetGame();
-                }
-            });
-
-            // 移动端下滑关闭
-            let touchStartY = 0;
-            questionOverlay.addEventListener('touchstart', (e) => {
-                touchStartY = e.touches[0].clientY;
-            }, { passive: true });
-            questionOverlay.addEventListener('touchend', (e) => {
-                const diff = e.changedTouches[0].clientY - touchStartY;
-                if (diff > 80) closeOverlay();
-            }, { passive: true });
-
-            // 初始化
+        // ============================================================
+        // 点击格子
+        // ============================================================
+        function onCellClick(number) {
+            if (usedCells[number - 1]) return;
+            usedCells[number - 1] = true;
+            currentNumber = number;
             renderGrid();
-        })();
+            showImage(number);
+        }
+
+        // ============================================================
+        // 显示图片（全屏模式）
+        // ============================================================
+        function showImage(number) {
+            imageContainer.innerHTML = '';
+            questionBadge.textContent = `第 ${number} 图`;
+
+            const img = document.createElement('img');
+            img.src = `${number}${IMAGE_EXTENSION}`;
+            img.alt = `图片 ${number}`;
+            img.loading = 'eager';
+            img.draggable = false;
+            img.style.opacity = '0';
+
+            img.onload = function() {
+                img.style.opacity = '1';
+            };
+
+            img.onerror = function() {
+                imageContainer.innerHTML = `
+                    <div class="image-fallback">
+                        ⚠️ 图片未找到<br>
+                        请确认 <strong>${number}${IMAGE_EXTENSION}</strong> 是否与此 HTML 文件在同一目录下
+                    </div>
+                `;
+            };
+
+            imageContainer.appendChild(img);
+            questionOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ============================================================
+        // 关闭图片弹窗
+        // ============================================================
+        function closeOverlay() {
+            questionOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            currentNumber = null;
+        }
+
+        // ============================================================
+        // 重置游戏
+        // ============================================================
+        function resetGame() {
+            usedCells = new Array(25).fill(false);
+            currentNumber = null;
+            closeOverlay();
+            winOverlay.classList.remove('active');
+            renderGrid();
+        }
+
+        // ============================================================
+        // 事件绑定
+        // ============================================================
+        btnBack.addEventListener('click', closeOverlay);
+        btnCloseTop.addEventListener('click', closeOverlay);
+        btnReset.addEventListener('click', resetGame);
+        btnWinReset.addEventListener('click', resetGame);
+
+        questionOverlay.addEventListener('click', (e) => {
+            if (e.target === questionOverlay) closeOverlay();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (questionOverlay.classList.contains('active')) {
+                    closeOverlay();
+                } else if (winOverlay.classList.contains('active')) {
+                    resetGame();
+                }
+            }
+        });
+
+        let touchStartY = 0;
+        questionOverlay.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        questionOverlay.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchEndY - touchStartY;
+            if (diff > 80) {
+                closeOverlay();
+            }
+        }, { passive: true });
+
+        // ============================================================
+        // 初始化
+        // ============================================================
+        renderGrid();
     </script>
 </body>
 </html>
