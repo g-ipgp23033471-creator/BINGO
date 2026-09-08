@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BINGO · 历史图鉴</title>
+    <style>
+        :root {
+            --bg-dark: #1a1008;
+            --bg-card: #e8d5b0;
+            --bg-card-light: #f5e8c8;
+            --border-gold: #b8860b;
+            --border-gold-light: #d4a840;
+            --text-dark: #3a2a1a;
+            --text-medium: #5c4a32;
+            --text-light: #8a7050;
+            --cell-available-bg: #f0e0c0;
+            --cell-available-border: #c4a882;
+            --cell-available-text: #4a3828;
+            --cell-used-bg: #3a2e20;
+            --cell-used-text: rgba(220, 200, 170, 0.55);
+            --check-gold: #ffd700;
+            --check-gold-glow: rgba(255, 215, 0, 0.7);
+            --accent-red: #8b2500;
+            --shadow-deep: 0 12px 40px rgba(0, 0, 0, 0.6);
+            --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.35);
+            --font-serif: 'Georgia', 'Times New Roman', '宋体', 'SimSun', '楷体', 'KaiTi', serif;
+            --success-green: #5a7a3a;
+            --warning-amber: #c49a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-serif);
+            background-color: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image:
+                radial-gradient(circle at 25% 30%, rgba(80, 50, 25, 0.5) 0%, transparent 55%),
+                radial-gradient(circle at 75% 70%, rgba(60, 35, 15, 0.55) 0%, transparent 50%),
+                repeating-linear-gradient(45deg, rgba(120, 80, 40, 0.04) 0px, rgba(120, 80, 40, 0.04) 3px, transparent 3px, transparent 7px);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 660px;
+            position: relative;
+        }
+
+        /* ============ 主卡片 ============ */
+        .main-view {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px 28px 38px;
+            box-shadow: var(--shadow-deep),
+                0 0 0 4px var(--border-gold),
+                0 0 0 8px rgba(139, 105, 20, 0.25),
+                inset 0 0 60px rgba(160, 120, 60, 0.2);
+            border: 1px solid var(--border-gold-light);
+            position: relative;
+            transition: all 0.4s ease;
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(255, 250, 230, 0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(180, 140, 80, 0.3) 0%, transparent 50%),
+                repeating-linear-gradient(0deg, rgba(160, 130, 80, 0.03) 0px, rgba(160, 130, 80, 0.03) 2px, transparent 2px, transparent 6px);
+        }
+
+        .main-view::before,
+        .main-view::after {
+            content: '❦';
+            position: absolute;
+            font-size: 1.6rem;
+            color: var(--border-gold);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .main-view::before { top: -14px; left: 16px; }
+        .main-view::after { bottom: -14px; right: 16px; transform: rotate(180deg); }
+
+        .corner-deco {
+            position: absolute;
+            font-size: 1.4rem;
+            color: var(--border-gold);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .corner-deco.top-right { top: -12px; right: 16px; transform: rotate(90deg); }
+        .corner-deco.bottom-left { bottom: -12px; left: 16px; transform: rotate(-90deg); }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .header .ornament-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            color: var(--border-gold);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+        .header .ornament-line::before,
+        .header .ornament-line::after {
+            content: '';
+            flex: 0 1 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 12px;
+            font-family: var(--font-serif);
+            background: linear-gradient(180deg, #c9a84c 0%, #8b6914 40%, #d4a840 65%, #a07820 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 12px rgba(200, 160, 60, 0.3));
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+
+        .header .subtitle {
+            color: var(--text-medium);
+            font-size: 0.95rem;
+            letter-spacing: 3px;
+            font-style: italic;
+            margin-bottom: 6px;
+        }
+
+        .header .progress-info {
+            display: inline-block;
+            color: var(--accent-red);
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 4px 18px;
+            border: 1px solid rgba(139, 37, 0, 0.4);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.3);
+            margin-top: 4px;
+        }
+
+        .bingo-letters {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 6px;
+            padding: 0 2px;
+        }
+        .bingo-letters .letter {
+            text-align: center;
+            font-size: 1.9rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            padding: 2px 0;
+            border-radius: 8px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .bingo-letters .letter:nth-child(1) { color: #c0392b; }
+        .bingo-letters .letter:nth-child(2) { color: #b8860b; }
+        .bingo-letters .letter:nth-child(3) { color: #6b8e23; }
+        .bingo-letters .letter:nth-child(4) { color: #3a6b8f; }
+        .bingo-letters .letter:nth-child(5) { color: #7b4fa0; }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 4px;
+            padding: 10px;
+            background: rgba(180, 140, 80, 0.2);
+            border-radius: 14px;
+            border: 2px solid rgba(184, 134, 11, 0.4);
+            box-shadow: inset 0 0 20px rgba(160, 120, 60, 0.15);
+            position: relative;
+        }
+
+        .bingo-grid::before,
+        .bingo-grid::after {
+            content: '⚜';
+            position: absolute;
+            font-size: 1.2rem;
+            color: var(--border-gold);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .bingo-grid::before { top: -10px; left: -10px; }
+        .bingo-grid::after { bottom: -10px; right: -10px; transform: rotate(180deg); }
+
+        .cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            position: relative;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            text-align: center;
+        }
+
+        .cell.available {
+            background: var(--cell-available-bg);
+            background-image:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.5) 0%, transparent 40%),
+                linear-gradient(0deg, rgba(180, 140, 80, 0.15) 0%, transparent 60%);
+            color: var(--cell-available-text);
+            border-color: var(--cell-available-border);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+        }
+
+        .cell.available:hover {
+            background: var(--bg-card-light);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            border-color: var(--border-gold-light);
+        }
+
+        .cell.available:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 2px 6px rgba(0, 0, 0, 0.15);
+            transition: all 0.08s ease;
+        }
+
+        .cell.used {
+            background: var(--cell-used-bg);
+            background-image:
+                linear-gradient(145deg, rgba(60, 45, 28, 0.9) 0%, rgba(40, 30, 18, 0.95) 60%),
+                repeating-linear-gradient(45deg, rgba(80, 55, 30, 0.15) 0px, rgba(80, 55, 30, 0.15) 2px, transparent 2px, transparent 5px);
+            color: var(--cell-used-text);
+            cursor: not-allowed;
+            border-color: rgba(60, 45, 28, 0.7);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
+            transform: scale(0.96);
+            text-shadow: none;
+        }
+
+        .cell.used .cell-number {
+            display: block;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: rgba(200, 180, 150, 0.6);
+            position: relative;
+            z-index: 1;
+        }
+
+        .cell.used .check-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.1rem;
+            font-weight: 900;
+            color: var(--check-gold);
+            z-index: 2;
+            opacity: 0.85;
+            text-shadow:
+                0 0 10px var(--check-gold-glow),
+                0 0 20px rgba(255, 215, 0, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            line-height: 1;
+            letter-spacing: -2px;
+            animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes checkPop {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 0; }
+            60% { transform: translate(-50%, -50%) scale(1.25) rotate(3deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0.85; }
+        }
+
+        .bottom-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 50px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: var(--font-serif);
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+
+        .btn-reset {
+            background: transparent;
+            color: var(--text-medium);
+            border: 2px solid rgba(184, 134, 11, 0.5);
+            background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
+        }
+        .btn-reset:hover {
+            background: rgba(184, 134, 11, 0.15);
+            border-color: var(--border-gold);
+            color: var(--text-dark);
+            box-shadow: 0 4px 16px rgba(184, 134, 11, 0.25);
+        }
+
+        .btn-upload {
+            background: linear-gradient(180deg, #8b6914, #5c4410);
+            color: #fef8e8;
+            border: 1px solid var(--border-gold-light);
+            box-shadow: 0 4px 16px rgba(139, 105, 20, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            letter-spacing: 1.5px;
+        }
+        .btn-upload:hover {
+            background: linear-gradient(180deg, #a07820, #6b4a10);
+            box-shadow: 0 6px 22px rgba(139, 105, 20, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .btn-upload .icon {
+            font-size: 1.2rem;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        /* ============ 上传进度指示 ============ */
+        .upload-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--text-medium);
+            letter-spacing: 0.5px;
+            flex-wrap: wrap;
+        }
+        .upload-status-bar .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            background: #ccc;
+            transition: background 0.3s;
+        }
+        .upload-status-bar .dot.loaded {
+            background: var(--success-green);
+            box-shadow: 0 0 6px rgba(90, 122, 58, 0.5);
+        }
+        .upload-status-bar .dot.partial {
+            background: var(--warning-amber);
+        }
+
+        /* ============ 全屏图片弹窗 ============ */
+        .question-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(5, 3, 0, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            overflow: hidden;
+        }
+        .question-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .overlay-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: linear-gradient(180deg, rgba(20, 12, 5, 0.9) 0%, rgba(20, 12, 5, 0.5) 80%, transparent 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 5;
+            flex-shrink: 0;
+        }
+
+        .question-number-badge {
+            display: inline-block;
+            background: linear-gradient(180deg, #c9a84c, #8b6914);
+            color: #fef8e8;
+            font-weight: 800;
+            font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+            padding: 6px 18px;
+            border-radius: 50px;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 8px rgba(139, 105, 20, 0.5);
+            border: 1px solid #d4a840;
+            white-space: nowrap;
+        }
+
+        .btn-close-top {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fef8e8;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            font-weight: 600;
+            font-family: var(--font-serif);
+            cursor: pointer;
+            letter-spacing: 1.5px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-close-top:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .image-container {
+            width: 100%;
+            flex: 1 1 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 12px 70px;
+            overflow: hidden;
+            position: relative;
+            min-height: 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            border-radius: 6px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(200, 160, 60, 0.3);
+            transition: opacity 0.3s ease;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .image-fallback {
+            color: #d4bc8e;
+            font-style: italic;
+            padding: 20px;
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .overlay-footer {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 16px 16px;
+            background: linear-gradient(0deg, rgba(20, 12, 5, 0.9) 0%, rgba(20, 12, 5, 0.5) 80%, transparent 100%);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            z-index: 5;
+            flex-shrink: 0;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-back {
+            background: linear-gradient(180deg, #a07020, #6b4a10);
+            color: #fef8e8;
+            padding: 13px 40px;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            box-shadow: 0 6px 20px rgba(139, 105, 20, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid #c9a84c;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: var(--font-serif);
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-back:hover {
+            background: linear-gradient(180deg, #b8860b, #7b5a14);
+            box-shadow: 0 8px 28px rgba(139, 105, 20, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .hint-text {
+            color: rgba(220, 200, 170, 0.5);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            font-style: italic;
+        }
+
+        /* ============ 图片管理面板 ============ */
+        .manager-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(5, 3, 0, 0.92);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 150;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            overflow-y: auto;
+        }
+        .manager-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .manager-card {
+            background: var(--bg-card);
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(255, 250, 230, 0.6) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 100%, rgba(180, 140, 80, 0.25) 0%, transparent 45%);
+            border-radius: 20px;
+            padding: 28px 24px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 0 0 0 3px var(--border-gold),
+                0 0 0 6px rgba(139, 105, 20, 0.3),
+                0 24px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--border-gold-light);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .manager-card::before {
+            content: '⚜';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.6rem;
+            color: var(--border-gold);
+            background: var(--bg-card);
+            padding: 0 12px;
+            z-index: 1;
+        }
+
+        .manager-header {
+            text-align: center;
+            margin-bottom: 18px;
+            margin-top: 4px;
+        }
+        .manager-header h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: 3px;
+            font-family: var(--font-serif);
+        }
+        .manager-header p {
+            color: var(--text-medium);
+            font-size: 0.85rem;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .upload-dropzone {
+            border: 2px dashed rgba(184, 134, 11, 0.6);
+            border-radius: 14px;
+            padding: 22px 16px;
+            text-align: center;
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.25);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-dropzone:hover {
+            border-color: var(--border-gold);
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(184, 134, 11, 0.2);
+        }
+        .upload-dropzone .icon {
+            font-size: 2.4rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .upload-dropzone .text {
+            color: var(--text-medium);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        .upload-dropzone .text strong {
+            color: var(--text-dark);
+        }
+
+        .thumbnails-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .thumb-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            border: 2px solid rgba(184, 134, 11, 0.3);
+            overflow: hidden;
+            position: relative;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .thumb-item .thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .thumb-item .thumb-number {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1px 5px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+        .thumb-item.empty {
+            border-style: dashed;
+            border-color: rgba(184, 134, 11, 0.25);
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .thumb-item.empty .empty-text {
+            font-size: 0.7rem;
+            color: rgba(90, 70, 40, 0.5);
+            font-weight: 600;
+        }
+
+        .manager-footer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .btn-manager {
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: var(--font-serif);
+            cursor: pointer;
+            letter-spacing: 1.5px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+        .btn-manager-primary {
+            background: linear-gradient(180deg, #a07020, #6b4a10);
+            color: #fef8e8;
+            border: 1px solid var(--border-gold-light);
+            box-shadow: 0 4px 14px rgba(139, 105, 20, 0.4);
+        }
+        .btn-manager-primary:hover {
+            background: linear-gradient(180deg, #b8860b, #7b5a14);
+            box-shadow: 0 6px 20px rgba(139, 105, 20, 0.55);
+        }
+        .btn-manager-secondary {
+            background: transparent;
+            color: var(--text-medium);
+            border: 2px solid rgba(184, 134, 11, 0.4);
+        }
+        .btn-manager-secondary:hover {
+            background: rgba(184, 134, 11, 0.1);
+            border-color: var(--border-gold);
+        }
+        .btn-manager-danger {
+            background: rgba(139, 37, 0, 0.15);
+            color: var(--accent-red);
+            border: 2px solid rgba(139, 37, 0, 0.4);
+        }
+        .btn-manager-danger:hover {
+            background: rgba(139, 37, 0, 0.25);
+            border-color: var(--accent-red);
+        }
+
+        /* ============ 胜利弹窗 ============ */
+        .win-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 6, 2, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .win-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .win-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 42px 35px 38px;
+            max-width: 430px;
+            width: 100%;
+            text-align: center;
+            border: 3px solid var(--border-gold);
+            box-shadow: 0 0 0 5px rgba(139, 105, 20, 0.3), 0 0 60px rgba(200, 160, 60, 0.35), 0 24px 60px rgba(0, 0, 0, 0.7);
+            transform: scale(0.65);
+            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        .win-overlay.active .win-card { transform: scale(1); }
+        .win-card::before {
+            content: '⚜';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: var(--border-gold);
+            background: var(--bg-card);
+            padding: 0 12px;
+        }
+        .win-card .trophy {
+            font-size: 4.2rem;
+            margin-bottom: 12px;
+            display: block;
+            animation: bounce 1.2s ease infinite;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+        .win-card h2 {
+            color: var(--border-gold);
+            font-size: 2.4rem;
+            font-weight: 900;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        .win-card p {
+            color: var(--text-medium);
+            font-size: 1.05rem;
+            margin-bottom: 26px;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        /* ============ 响应式 ============ */
+        @media (orientation: landscape) {
+            .image-container {
+                padding: 50px 20px 60px;
+            }
+            .image-container img {
+                max-height: 85vh;
+                max-width: 75vw;
+            }
+        }
+
+        @media (orientation: portrait) and (max-width: 600px) {
+            .image-container {
+                padding: 50px 8px 70px;
+            }
+            .image-container img {
+                max-height: 75vh;
+                max-width: 95vw;
+            }
+            .overlay-header {
+                padding: 8px 12px;
+            }
+            .question-number-badge {
+                padding: 5px 14px;
+                font-size: 0.7rem;
+            }
+            .btn-close-top {
+                padding: 6px 14px;
+                font-size: 0.75rem;
+            }
+            .overlay-footer {
+                padding: 8px 12px 12px;
+            }
+            .btn-back {
+                padding: 11px 28px;
+                font-size: 0.85rem;
+            }
+            .hint-text { display: none; }
+            .thumbnails-grid { gap: 3px; }
+            .manager-card { padding: 20px 14px; }
+        }
+
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .image-container img {
+                max-height: 70vh;
+                max-width: 85vw;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .image-container img {
+                max-height: 78vh;
+                max-width: 70vw;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .main-view { padding: 18px 12px 22px; }
+            .header h1 { font-size: 2rem; letter-spacing: 6px; }
+            .bingo-grid { gap: 4px; padding: 6px; }
+            .cell { font-size: 1.1rem; border-radius: 7px; }
+            .cell.used .cell-number { font-size: 0.85rem; }
+            .cell.used .check-overlay { font-size: 1.4rem; }
+            .bingo-letters .letter { font-size: 1.3rem; }
+            .btn { padding: 10px 20px; font-size: 0.85rem; }
+            .corner-deco,
+            .main-view::before,
+            .main-view::after,
+            .bingo-grid::before,
+            .bingo-grid::after { display: none; }
+            .header .ornament-line::before,
+            .header .ornament-line::after { flex: 0 1 30px; }
+            .bottom-bar { gap: 8px; }
+            .btn { padding: 10px 16px; font-size: 0.8rem; letter-spacing: 1px; }
+        }
+
+        @media (max-width: 360px) {
+            .cell { font-size: 0.9rem; }
+            .cell.used .check-overlay { font-size: 1.2rem; }
+            .header h1 { font-size: 1.5rem; letter-spacing: 4px; }
+            .bingo-grid { gap: 3px; padding: 4px; }
+            .thumbnails-grid { grid-template-columns: repeat(5, 1fr); gap: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== 主视图 ==================== -->
+    <div class="container">
+        <div class="main-view" id="mainView">
+            <span class="corner-deco top-right">❦</span>
+            <span class="corner-deco bottom-left">❦</span>
+
+            <div class="header">
+                <div class="ornament-line">⚜ ─── 图鉴 ─── ⚜</div>
+                <h1>BINGO</h1>
+                <div class="subtitle">— 点击号码 · 观图品史 —</div>
+                <div class="progress-info" id="progressInfo">已答 0 题 · 共 25 题</div>
+            </div>
+
+            <div class="bingo-letters">
+                <div class="letter">B</div>
+                <div class="letter">I</div>
+                <div class="letter">N</div>
+                <div class="letter">G</div>
+                <div class="letter">O</div>
+            </div>
+
+            <div class="bingo-grid" id="bingoGrid"></div>
+
+            <div class="bottom-bar">
+                <button class="btn btn-upload" id="btnOpenManager">
+                    <span class="icon">📁</span> 上传图片
+                </button>
+                <button class="btn btn-reset" id="btnReset">🔄 重开图鉴</button>
+            </div>
+
+            <!-- 上传状态指示条 -->
+            <div class="upload-status-bar" id="uploadStatusBar">
+                <span>图片加载：</span>
+                <span id="statusDots"></span>
+                <span id="statusText">尚未上传图片</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 全屏图片弹窗 ==================== -->
+    <div class="question-overlay" id="questionOverlay">
+        <div class="overlay-header">
+            <span class="question-number-badge" id="questionBadge">第 1 图</span>
+            <button class="btn-close-top" id="btnCloseTop">✕ 关闭</button>
+        </div>
+        <div class="image-container" id="imageContainer"></div>
+        <div class="overlay-footer">
+            <button class="btn btn-back" id="btnBack">← 返回号码</button>
+            <span class="hint-text">按 Esc 键关闭</span>
+        </div>
+    </div>
+
+    <!-- ==================== 图片管理面板 ==================== -->
+    <div class="manager-overlay" id="managerOverlay">
+        <div class="manager-card">
+            <div class="manager-header">
+                <h2>📁 图片管理</h2>
+                <p>上传您的图片，系统将按文件名中的数字自动匹配到 1~25 号</p>
+            </div>
+
+            <!-- 拖拽上传区域 -->
+            <div class="upload-dropzone" id="uploadDropzone">
+                <span class="icon">🖼️</span>
+                <span class="text">点击选择图片 或 拖拽图片到此处<br>
+                    <strong>支持 .png / .jpg / .jpeg / .webp</strong><br>
+                    文件名包含数字即可自动匹配（如 <strong>1.png</strong>、<strong>13.png</strong>）
+                </span>
+            </div>
+
+            <!-- 25 张缩略图预览 -->
+            <div class="thumbnails-grid" id="thumbnailsGrid"></div>
+
+            <div class="manager-footer">
+                <button class="btn-manager btn-manager-primary" id="btnManagerDone">✓ 完成</button>
+                <button class="btn-manager btn-manager-danger" id="btnClearAll">🗑 清除全部</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 胜利弹窗 ==================== -->
+    <div class="win-overlay" id="winOverlay">
+        <div class="win-card">
+            <span class="trophy">🏆</span>
+            <h2>BINGO!</h2>
+            <p>二十五图全部鉴赏完毕，历史画卷圆满！</p>
+            <button class="btn btn-back" id="btnWinReset">🔄 再开一卷</button>
+        </div>
+    </div>
+
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/webp" multiple style="display:none;">
+
+    <script>
+        (function() {
+            // ============================================================
+            // 📸 图片数据存储
+            // ============================================================
+            const imageStore = new Map(); // key: 1~25, value: blob URL
+            let usedCells = new Array(25).fill(false);
+            let currentNumber = null;
+            let objectURLs = []; // 用于清理
+
+            // DOM
+            const bingoGrid = document.getElementById('bingoGrid');
+            const progressInfo = document.getElementById('progressInfo');
+            const questionOverlay = document.getElementById('questionOverlay');
+            const questionBadge = document.getElementById('questionBadge');
+            const imageContainer = document.getElementById('imageContainer');
+            const btnBack = document.getElementById('btnBack');
+            const btnCloseTop = document.getElementById('btnCloseTop');
+            const btnReset = document.getElementById('btnReset');
+            const winOverlay = document.getElementById('winOverlay');
+            const btnWinReset = document.getElementById('btnWinReset');
+            const managerOverlay = document.getElementById('managerOverlay');
+            const btnOpenManager = document.getElementById('btnOpenManager');
+            const btnManagerDone = document.getElementById('btnManagerDone');
+            const btnClearAll = document.getElementById('btnClearAll');
+            const uploadDropzone = document.getElementById('uploadDropzone');
+            const fileInput = document.getElementById('fileInput');
+            const thumbnailsGrid = document.getElementById('thumbnailsGrid');
+            const statusDots = document.getElementById('statusDots');
+            const statusText = document.getElementById('statusText');
+
+            // ============================================================
+            // 渲染主网格
+            // ============================================================
+            function renderGrid() {
+                bingoGrid.innerHTML = '';
+                for (let i = 1; i <= 25; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.number = i;
+
+                    if (usedCells[i - 1]) {
+                        cell.classList.add('used');
+                        const numSpan = document.createElement('span');
+                        numSpan.className = 'cell-number';
+                        numSpan.textContent = i;
+                        cell.appendChild(numSpan);
+                        const checkSpan = document.createElement('span');
+                        checkSpan.className = 'check-overlay';
+                        checkSpan.textContent = '✓';
+                        cell.appendChild(checkSpan);
+                    } else {
+                        cell.classList.add('available');
+                        cell.textContent = i;
+                        cell.addEventListener('click', () => onCellClick(i));
+                    }
+                    bingoGrid.appendChild(cell);
+                }
+                updateProgress();
+                updateStatusBar();
+            }
+
+            function updateProgress() {
+                const usedCount = usedCells.filter(u => u).length;
+                progressInfo.textContent = `已答 ${usedCount} 题 · 共 25 题`;
+                if (usedCount === 25) {
+                    setTimeout(() => winOverlay.classList.add('active'), 450);
+                }
+            }
+
+            // ============================================================
+            // 更新上传状态指示条
+            // ============================================================
+            function updateStatusBar() {
+                const loadedCount = imageStore.size;
+                let dotsHtml = '';
+                for (let i = 1; i <= 25; i++) {
+                    const hasImg = imageStore.has(i);
+                    dotsHtml += `<span class="dot ${hasImg ? 'loaded' : ''}"></span>`;
+                }
+                statusDots.innerHTML = dotsHtml;
+                statusText.textContent = loadedCount > 0 ? `已加载 ${loadedCount}/25 张图片` : '尚未上传图片';
+            }
+
+            // ============================================================
+            // 点击格子
+            // ============================================================
+            function onCellClick(number) {
+                if (usedCells[number - 1]) return;
+                usedCells[number - 1] = true;
+                currentNumber = number;
+                renderGrid();
+                showImage(number);
+            }
+
+            // ============================================================
+            // 显示图片（全屏）
+            // ============================================================
+            function showImage(number) {
+                imageContainer.innerHTML = '';
+                questionBadge.textContent = `第 ${number} 图`;
+
+                if (imageStore.has(number)) {
+                    const img = document.createElement('img');
+                    img.src = imageStore.get(number);
+                    img.alt = `图片 ${number}`;
+                    img.loading = 'eager';
+                    img.draggable = false;
+                    img.style.opacity = '1';
+                    imageContainer.appendChild(img);
+                } else {
+                    imageContainer.innerHTML = `
+                        <div class="image-fallback">
+                            ⚠️ 第 ${number} 号图片尚未上传<br>
+                            请点击下方「上传图片」按钮添加
+                        </div>
+                    `;
+                }
+                questionOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeOverlay() {
+                questionOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                currentNumber = null;
+            }
+
+            // ============================================================
+            // 图片管理面板
+            // ============================================================
+            function renderThumbnails() {
+                thumbnailsGrid.innerHTML = '';
+                for (let i = 1; i <= 25; i++) {
+                    const item = document.createElement('div');
+                    item.className = 'thumb-item';
+                    if (imageStore.has(i)) {
+                        const img = document.createElement('img');
+                        img.className = 'thumb-img';
+                        img.src = imageStore.get(i);
+                        img.alt = `缩略图 ${i}`;
+                        item.appendChild(img);
+                        const num = document.createElement('span');
+                        num.className = 'thumb-number';
+                        num.textContent = i;
+                        item.appendChild(num);
+                    } else {
+                        item.classList.add('empty');
+                        const emptyText = document.createElement('span');
+                        emptyText.className = 'empty-text';
+                        emptyText.textContent = i;
+                        item.appendChild(emptyText);
+                    }
+                    thumbnailsGrid.appendChild(item);
+                }
+            }
+
+            function openManager() {
+                renderThumbnails();
+                managerOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeManager() {
+                managerOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                renderGrid();
+                updateStatusBar();
+            }
+
+            // ============================================================
+            // 图片上传处理
+            // ============================================================
+            function extractNumberFromFilename(filename) {
+                // 匹配文件名中的数字（如 "1.png" -> 1, "image_13.png" -> 13）
+                const match = filename.match(/(\d+)/);
+                if (match) {
+                    const num = parseInt(match[1], 10);
+                    if (num >= 1 && num <= 25) return num;
+                }
+                return null;
+            }
+
+            function processFiles(fileList) {
+                const files = Array.from(fileList);
+                let matchedCount = 0;
+                let unmatchedFiles = [];
+
+                files.forEach(file => {
+                    const num = extractNumberFromFilename(file.name);
+                    if (num !== null && num >= 1 && num <= 25) {
+                        // 清理旧的 blob URL
+                        if (imageStore.has(num)) {
+                            const oldUrl = imageStore.get(num);
+                            URL.revokeObjectURL(oldUrl);
+                        }
+                        const blobUrl = URL.createObjectURL(file);
+                        imageStore.set(num, blobUrl);
+                        objectURLs.push(blobUrl);
+                        matchedCount++;
+                    } else {
+                        unmatchedFiles.push(file.name);
+                    }
+                });
+
+                renderThumbnails();
+                updateStatusBar();
+
+                // 提示结果
+                if (unmatchedFiles.length > 0) {
+                    alert(`⚠️ ${unmatchedFiles.length} 个文件无法匹配编号（需要文件名包含 1~25 之间的数字）：\n${unmatchedFiles.slice(0, 5).join('\n')}${unmatchedFiles.length > 5 ? '\n...' : ''}`);
+                } else if (matchedCount > 0) {
+                    // 静默成功
+                }
+            }
+
+            function clearAllImages() {
+                if (imageStore.size === 0) return;
+                if (!confirm('确定要清除所有已上传的图片吗？')) return;
+                imageStore.forEach(url => URL.revokeObjectURL(url));
+                imageStore.clear();
+                renderThumbnails();
+                updateStatusBar();
+            }
+
+            // ============================================================
+            // 事件绑定
+            // ============================================================
+            btnOpenManager.addEventListener('click', openManager);
+            btnManagerDone.addEventListener('click', closeManager);
+            btnClearAll.addEventListener('click', clearAllImages);
+            btnBack.addEventListener('click', closeOverlay);
+            btnCloseTop.addEventListener('click', closeOverlay);
+            btnReset.addEventListener('click', resetGame);
+            btnWinReset.addEventListener('click', resetGame);
+
+            // 上传区域点击
+            uploadDropzone.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    processFiles(e.target.files);
+                    e.target.value = '';
+                }
+            });
+
+            // 拖拽上传
+            uploadDropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadDropzone.style.borderColor = 'var(--border-gold)';
+                uploadDropzone.style.background = 'rgba(255,255,255,0.45)';
+            });
+            uploadDropzone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadDropzone.style.borderColor = 'rgba(184, 134, 11, 0.6)';
+                uploadDropzone.style.background = 'rgba(255,255,255,0.25)';
+            });
+            uploadDropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadDropzone.style.borderColor = 'rgba(184, 134, 11, 0.6)';
+                uploadDropzone.style.background = 'rgba(255,255,255,0.25)';
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    processFiles(e.dataTransfer.files);
+                }
+            });
+
+            // 全屏弹窗背景点击关闭
+            questionOverlay.addEventListener('click', (e) => {
+                if (e.target === questionOverlay) closeOverlay();
+            });
+            // 管理面板背景点击关闭
+            managerOverlay.addEventListener('click', (e) => {
+                if (e.target === managerOverlay) closeManager();
+            });
+
+            // 键盘事件
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (questionOverlay.classList.contains('active')) {
+                        closeOverlay();
+                    } else if (managerOverlay.classList.contains('active')) {
+                        closeManager();
+                    } else if (winOverlay.classList.contains('active')) {
+                        resetGame();
+                    }
+                }
+            });
+
+            // 触摸下滑关闭图片预览
+            let touchStartY = 0;
+            questionOverlay.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            questionOverlay.addEventListener('touchend', (e) => {
+                const diff = e.changedTouches[0].clientY - touchStartY;
+                if (diff > 80) closeOverlay();
+            }, { passive: true });
+
+            // ============================================================
+            // 重置游戏
+            // ============================================================
+            function resetGame() {
+                usedCells = new Array(25).fill(false);
+                currentNumber = null;
+                closeOverlay();
+                closeManager();
+                winOverlay.classList.remove('active');
+                renderGrid();
+                updateStatusBar();
+            }
+
+            // ============================================================
+            // 初始化
+            // ============================================================
+            renderGrid();
+            updateStatusBar();
+        })();
+    </script>
+</body>
+</html>
